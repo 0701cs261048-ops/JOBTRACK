@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobTrack</title>
+<style>
+:root{--bg:#eef1f5;--s:#fff;--ink:#17212b;--mute:#5d6b7a;--line:#d7dde4;--col:#e3e8ee;--ac:#2b59d9;--aci:#fff;--bad:#b4322b;--Applied:#2b59d9;--Interview:#b7791f;--Offer:#1f8a5b;--Rejected:#8a94a0}
+@media(prefers-color-scheme:dark){:root{--bg:#0f161d;--s:#17212b;--ink:#e8edf2;--mute:#9aa7b4;--line:#2a3744;--col:#131c25;--ac:#6d94ff;--aci:#0b1220;--bad:#ff8a80;--Applied:#6d94ff;--Interview:#e0a93b;--Offer:#4fc28d}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--s);padding:8px 12px;border-radius:8px}
+button.p{background:var(--ac);color:var(--aci);border-color:var(--ac);font-weight:600}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+h1{margin:0;font-size:24px;letter-spacing:-.02em}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.top .sp{flex:1}
+.mute{color:var(--mute)}
+.auth{max-width:360px;margin:12vh auto;background:var(--s);border:1px solid var(--line);border-radius:12px;padding:22px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 3px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.box{background:var(--s);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.box h2{margin:0 0 8px;font-size:14px;color:var(--mute);font-weight:600}
+.big{font-size:30px;font-weight:700;letter-spacing:-.02em}
+.bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}.bar b{width:68px;font-weight:500}
+.bar i{display:block;height:10px;border-radius:5px;min-width:3px;transition:width .4s}
+.spark{display:flex;align-items:flex-end;gap:6px;height:64px}
+.spark div{flex:1;background:var(--ac);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.spark span{position:absolute;top:100%;left:0;right:0;text-align:center;font-size:10px;color:var(--mute);margin-top:2px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.tools input{flex:1 1 180px}.tools select{width:auto}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:24px}
+.col{flex:0 0 min(84vw,290px);background:var(--col);border-radius:10px;padding:10px;min-height:240px}
+@media(min-width:900px){.col{flex:1 1 0;min-width:0}}
+.col.over{outline:2px dashed var(--ac)}
+.ch{display:flex;align-items:center;gap:8px;font-weight:600;margin:2px 2px 10px}.ch .n{margin-left:auto;color:var(--mute)}
+.dot{width:10px;height:10px;border-radius:50%}
+.card{background:var(--s);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:grab}
+.card.drag{opacity:.4}.card h3{margin:0;font-size:15px}.card p{margin:0}
+.meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:6px}.meta a{color:var(--ac)}
+.note{font-size:13px;margin-top:6px!important;white-space:pre-wrap;overflow-wrap:anywhere}
+.acts{display:flex;gap:6px;margin-top:10px}.acts select{padding:5px;font-size:13px}.acts button{padding:5px 9px;font-size:13px}
+.del{color:var(--bad)}.empty{font-size:13px;color:var(--mute);padding:6px 2px}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--s);color:var(--ink);padding:18px;width:min(92vw,420px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog h2{margin:0 0 6px;font-size:19px}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;display:none}
+</style></head><body>
+<div id="authv" class="auth" hidden>
+  <h1>JobTrack</h1><p class="mute" id="atag">Log in to see your applications.</p>
+  <form id="af"><label for="em">Email</label><input id="em" type="email" required autocomplete="email">
+  <label for="pw">Password (8+ characters)</label><input id="pw" type="password" required minlength="8" autocomplete="current-password">
+  <div class="err" id="aerr" role="alert"></div>
+  <div class="row" style="justify-content:space-between"><button type="button" id="sw">Create an account</button><button class="p" id="ab">Log in</button></div></form>
+</div>
+
+<div id="appv" class="wrap" hidden>
+  <div class="top"><h1>JobTrack</h1><span class="sp"></span><span class="mute" id="who"></span><button id="out">Log out</button></div>
+  <div class="stats">
+    <div class="box"><h2>Heard back</h2><div class="big" id="hb">0%</div><div class="mute" id="tot"></div></div>
+    <div class="box"><h2>Pipeline</h2><div id="pipe"></div></div>
+    <div class="box"><h2>Applications, last 7 days</h2><div class="spark" id="spark" style="margin-bottom:16px"></div></div>
+  </div>
+  <div class="tools"><input id="q" type="search" placeholder="Search company, role or notes" aria-label="Search">
+    <select id="fs" aria-label="Filter by status"><option value="">All statuses</option></select>
+    <button class="p" id="add">Add application</button></div>
+  <div class="board" id="board"></div>
+</div>
+
+<dialog id="dlg"><form id="f"><h2 id="dt"></h2>
+  <label for="company">Company</label><input id="company" required maxlength="80">
+  <label for="role">Role</label><input id="role" required maxlength="80">
+  <label for="status">Status</label><select id="status"></select>
+  <label for="date">Date applied</label><input id="date" type="date" required>
+  <label for="link">Job link (optional)</label><input id="link" type="url" placeholder="https://">
+  <label for="notes">Notes (optional)</label><textarea id="notes" maxlength="500" rows="3"></textarea>
+  <div class="err" id="ferr" role="alert"></div>
+  <div class="row"><button type="button" id="cancel">Cancel</button><button class="p">Save application</button></div></form></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const ST=['Applied','Interview','Offer','Rejected'],$=i=>document.getElementById(i);
+let tok=localStorage.getItem('jt'),apps=[],editId=null,dragId=null,mode='login';
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2500)}
+async function api(p,m='GET',b){
+  const r=await fetch('/api/'+p,{method:m,headers:{'Content-Type':'application/json',...(tok?{Authorization:'Bearer '+tok}:{})},body:b?JSON.stringify(b):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){if(r.status===401&&tok&&p!=='login')showAuth();throw new Error(j.error||'Request failed')}
+  return j}
+function showAuth(){tok=null;localStorage.removeItem('jt');$('appv').hidden=true;$('authv').hidden=false}
+function setMode(m){mode=m;const L=m==='login';$('atag').textContent=L?'Log in to see your applications.':'Create an account to start tracking.';
+  $('ab').textContent=L?'Log in':'Create account';$('sw').textContent=L?'Create an account':'I have an account';
+  $('pw').autocomplete=L?'current-password':'new-password';$('aerr').textContent=''}
+$('sw').onclick=()=>setMode(mode==='login'?'register':'login');
+$('af').onsubmit=async e=>{e.preventDefault();try{const j=await api(mode,'POST',{email:$('em').value,password:$('pw').value});
+  tok=j.token;localStorage.setItem('jt',tok);$('pw').value='';boot()}catch(x){$('aerr').textContent=x.message}};
+$('out').onclick=async()=>{try{await api('logout','POST')}catch(x){}showAuth()};
+
+async function boot(){
+  try{const me=await api('me');$('who').textContent=me.email;$('authv').hidden=true;$('appv').hidden=false;
+    apps=await api('apps');render();stats()}catch(x){showAuth()}}
+async function stats(){
+  const s=await api('stats');$('hb').textContent=s.heard_back_pct+'%';$('tot').textContent=s.total+' applications in total';
+  const mx=Math.max(1,...Object.values(s.counts));$('pipe').textContent='';
+  ST.forEach(k=>{const r=el('div','bar');r.append(el('b',null,k));const i=el('i');i.style.background='var(--'+k+')';i.style.width=(s.counts[k]/mx*55)+'%';r.append(i,el('span','mute',s.counts[k]));$('pipe').append(r)});
+  const m2=Math.max(1,...s.last7.map(d=>d.n));$('spark').textContent='';
+  s.last7.forEach(d=>{const b=el('div');b.style.height=(d.n/m2*100)+'%';b.title=d.date+': '+d.n;b.append(el('span',null,d.date.slice(8)));$('spark').append(b)})}
+
+function card(a){
+  const c=el('div','card');c.draggable=true;
+  c.append(el('h3',null,a.company),el('p','mute',a.role));
+  const m=el('div','meta');m.append(el('span',null,'Applied '+new Date(a.date+'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'})));
+  if(/^https?:\/\//i.test(a.link)){const l=el('a',null,'Job post');l.href=a.link;l.target='_blank';l.rel='noopener noreferrer';m.append(l)}
+  c.append(m);if(a.notes)c.append(el('p','note',a.notes));
+  const ac=el('div','acts'),s=el('select');s.setAttribute('aria-label','Move '+a.company);
+  ST.forEach(x=>{const o=el('option',null,x);o.value=x;o.selected=x===a.status;s.append(o)});
+  s.onchange=()=>move(a,s.value);
+  const e=el('button',null,'Edit');e.onclick=()=>openDlg(a);
+  const d=el('button','del','Delete');d.onclick=async()=>{if(!confirm('Delete '+a.company+'?'))return;
+    try{await api('apps/'+a.id,'DELETE');apps=apps.filter(x=>x.id!==a.id);render();stats();toast('Application deleted')}catch(x){toast(x.message)}};
+  ac.append(s,e,d);c.append(ac);
+  c.ondragstart=ev=>{dragId=a.id;c.classList.add('drag');ev.dataTransfer.setData('text/plain',a.id)};
+  c.ondragend=()=>{dragId=null;c.classList.remove('drag')};return c}
+async function move(a,st){const old=a.status;if(old===st)return;a.status=st;render();
+  try{await api('apps/'+a.id,'PUT',a);stats();toast('Moved to '+st)}catch(x){a.status=old;render();toast(x.message)}}
+function render(){
+  const q=$('q').value.trim().toLowerCase(),fs=$('fs').value;$('board').textContent='';
+  ST.forEach(st=>{
+    const items=apps.filter(a=>a.status===st&&(!fs||fs===st)&&(!q||(a.company+' '+a.role+' '+a.notes).toLowerCase().includes(q)));
+    const col=el('section','col'),h=el('div','ch'),dot=el('span','dot');dot.style.background='var(--'+st+')';
+    h.append(dot,el('span',null,st),el('span','n',items.length));col.append(h);
+    if(!items.length)col.append(el('p','empty',q||fs?'No matches.':'Empty. Drag a card here or add one.'));
+    items.forEach(a=>col.append(card(a)));
+    col.ondragover=e=>{e.preventDefault();col.classList.add('over')};col.ondragleave=()=>col.classList.remove('over');
+    col.ondrop=e=>{e.preventDefault();col.classList.remove('over');const a=apps.find(x=>x.id==dragId);if(a)move(a,st)};
+    $('board').append(col)})}
+function openDlg(a){editId=a?a.id:null;$('dt').textContent=a?'Edit application':'Add application';$('ferr').textContent='';
+  $('company').value=a?a.company:'';$('role').value=a?a.role:'';$('status').value=a?a.status:'Applied';
+  $('date').value=a?a.date:today();$('link').value=a?a.link:'';$('notes').value=a?a.notes:'';$('dlg').showModal();$('company').focus()}
+ST.forEach(x=>{[$('status'),$('fs')].forEach(s=>{const o=el('option',null,x);o.value=x;s.append(o)})});
+$('add').onclick=()=>openDlg();$('cancel').onclick=()=>$('dlg').close();$('q').oninput=render;$('fs').onchange=render;
+$('f').onsubmit=async e=>{e.preventDefault();
+  const d={company:$('company').value,role:$('role').value,status:$('status').value,date:$('date').value,link:$('link').value,notes:$('notes').value};
+  try{if(editId){await api('apps/'+editId,'PUT',d);apps=apps.map(a=>a.id===editId?{...d,id:editId}:a)}
+    else{const n=await api('apps','POST',d);apps.unshift(n)}
+    $('dlg').close();render();stats();toast('Application saved')}catch(x){$('ferr').textContent=x.message}};
+tok?boot():showAuth();
+</script></body></html>

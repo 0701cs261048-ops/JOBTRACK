@@ -36,9 +36,7 @@ Prerequisites
 
 1. Clone the repository
 
-git clone YOUR_GITHUB_REPOSITORY_URL
-
-Replace "YOUR_GITHUB_REPOSITORY_URL" with your repository's actual HTTPS clone URL.
+git clone https://github.com/0701cs261048-ops/JOBTRACK.git
 
 2. Enter the project directory
 

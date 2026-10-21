@@ -169,6 +169,6 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     init()
-    port = int(os.environ.get("PORT", 8000))
-    print(f"JobTrack running at http://localhost:{port}")
-    ThreadingHTTPServer(("0.0.0.0", port), H).serve_forever()
+    port = int(os.environ.get("PORT", 10000))
+print(f"JobTrack running on port {port}")
+ThreadingHTTPServer(("0.0.0.0", port), H).serve_forever()
